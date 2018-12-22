@@ -16,8 +16,6 @@ class Neo4jCheck(AgentCheck):
 
     # Neo4j metrics to send
     keys = set([
-        'kernelversion',
-        'storeid',
         'storecreationdate',
         'storelogversion',
         'kernelstarttime',
@@ -50,13 +48,9 @@ class Neo4jCheck(AgentCheck):
         'flushes',
         'evictionexceptions',
         'faults',
-        'ha.pull_interval',
-        'dbms.memory.pagecache.size',
     ])
 
-    display = {'kernelversion':'neo4j.kernel.version',
-               'storeid':'neo4j.storeid',
-               'storecreationdate':'neo4j.store.creationdate',
+    display = {'storecreationdate':'neo4j.store.creationdate',
                'storelogversion':'neo4j.store.log.version',
                'kernelstarttime':'neo4j.kernel.starttime',
                'lastcommittedtxid':'neo4j.last.committed.transaction.id',
@@ -87,9 +81,7 @@ class Neo4jCheck(AgentCheck):
                'bytesread':'neo4j.bytes.read',
                'flushes':'neo4j.page.cache.flushes',
                'evictionexceptions':'neo4j.page.cache.eviction.exceptions',
-               'faults':'neo4j.page.cache.faults',
-               'ha.pull_interval':'neo4j.ha.pull_interval',
-               'dbms.memory.pagecache.size':'neo4j.dbms.memory.pagecache.size'}
+               'faults':'neo4j.page.cache.faults'}
 
     def __init__(self, name, init_config, agentConfig, instances=None):
         AgentCheck.__init__(self, name, init_config, agentConfig, instances)
@@ -136,7 +128,7 @@ class Neo4jCheck(AgentCheck):
             if doc['row'][0].lower() in self.keys:
                 try:
                     self.gauge(self.display.get(doc['row'][0].lower(),""), doc['row'][1], tags=tags)
-                except ValueError as e:
+                except TypeError as e:
                     continue
 
     def _get_config(self, instance):
